@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube AI Chatbox Preview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 flex items-center justify-center min-h-screen p-4 font-sans">
+
+  <div id="auth-screen" class="w-full max-w-sm border border-slate-800 bg-slate-900/70 p-6 rounded-2xl shadow-2xl text-center space-y-6">
+    <div class="w-12 h-12 bg-red-600/20 text-red-500 rounded-full flex items-center justify-center mx-auto text-xl font-bold">▶</div>
+    <div>
+      <h1 class="text-xl font-bold">YouTube AI Chatbox</h1>
+      <p class="text-sm text-slate-400 mt-1">Sign in to test the live chat simulation</p>
+    </div>
+    <div class="space-y-3">
+      <button onclick="login('Google')" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 font-medium rounded-lg text-sm transition">
+        Sign In with Google
+      </button>
+      <button onclick="login('Apple')" class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 font-medium rounded-lg text-sm transition">
+        Sign In with Apple
+      </button>
+    </div>
+  </div>
+
+  <div id="chat-screen" class="hidden w-full max-w-2xl h-[85vh] border border-slate-800 bg-slate-900/40 rounded-2xl flex flex-col p-4 shadow-2xl">
+    <header class="flex justify-between items-center pb-3 border-b border-slate-800">
+      <div class="flex items-center gap-2">
+        <span class="text-red-500 font-bold">▶</span>
+        <span class="font-semibold text-sm">YouTube AI Companion</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="user-display" class="text-xs text-slate-400"></span>
+        <button onclick="logout()" class="text-xs text-rose-400 hover:underline">Log Out</button>
+      </div>
+    </header>
+
+    <div id="chat-box" class="flex-1 overflow-y-auto py-4 space-y-3 pr-1 text-sm">
+      <div class="text-center text-slate-500 text-xs py-8">
+        Try asking: <em>"Show me Python tutorials for beginners"</em> or <em>"How to bake sourdough bread"</em>
+      </div>
+    </div>
+
+    <form onsubmit="handleSend(event)" class="flex gap-2 pt-2 border-t border-slate-800">
+      <input id="prompt-input" type="text" placeholder="Search a topic or video question..." class="flex-1 rounded-xl bg-slate-900 border border-slate-800 px-4 py-2 text-sm focus:outline-none focus:border-blue-500" required />
+      <button type="submit" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-xl text-sm font-medium transition">Send</button>
+    </form>
+  </div>
+
+  <script>
+    function login(provider) {
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('chat-screen').classList.remove('hidden');
+      document.getElementById('user-display').innerText = `user@${provider.toLowerCase()}.com`;
+    }
+
+    function logout() {
+      document.getElementById('chat-screen').classList.add('hidden');
+      document.getElementById('auth-screen').classList.remove('hidden');
+    }
+
+    function handleSend(e) {
+      e.preventDefault();
+      const input = document.getElementById('prompt-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const chat = document.getElementById('chat-box');
+      chat.innerHTML += `<div class="ml-auto bg-blue-600 text-white rounded-xl p-3 max-w-[85%]">${text}</div>`;
+      input.value = '';
+      chat.scrollTop = chat.scrollHeight;
+
+      chat.innerHTML += `<div id="loading" class="mr-auto text-xs text-slate-400 italic">Searching YouTube & generating response...</div>`;
+      chat.scrollTop = chat.scrollHeight;
+
+      setTimeout(() => {
+        const loading = document.getElementById('loading');
+        if (loading) loading.remove();
+
+        chat.innerHTML += `
+          <div class="mr-auto bg-slate-800/80 border border-slate-700/60 rounded-xl p-3 max-w-[85%] space-y-2">
+            <p>Here is what you need to know about <strong>"${text}"</strong> based on trending YouTube resources:</p>
+            <div class="pt-2 border-t border-slate-700 text-xs space-y-1">
+              <span class="font-semibold text-slate-300 uppercase tracking-wider text-[10px]">Referenced Videos:</span>
+              <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(text)}" target="_blank" class="block text-blue-400 hover:underline truncate">▶ ${text} - Complete Guide (YouTube)</a>
+              <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(text + ' crash course')}" target="_blank" class="block text-blue-400 hover:underline truncate">▶ Quick Crash Course: ${text}</a>
+            </div>
+          </div>
+        `;
+        chat.scrollTop = chat.scrollHeight;
+      }, 900);
+    }
+  </script>
+</body>
+</html>
